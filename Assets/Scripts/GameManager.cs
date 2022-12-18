@@ -10,6 +10,10 @@ public class GameManager : MonoBehaviour
     public DoorManager doorManager;
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private Transform playerStart;
+    [SerializeField] private float timePerRoom;
+    private bool timeFly = true;
+    private float timePassed;
+
     private PlayerMovement player;
     public int score = 0;
     [Header("Question")]
@@ -18,6 +22,9 @@ public class GameManager : MonoBehaviour
     private Question currentQuestion;
     [Space]
     [SerializeField] private TextMeshProUGUI display;
+    [SerializeField] private TextMeshProUGUI points;
+    [SerializeField] private TextMeshProUGUI timerDisplay;
+    [Space]
     [SerializeField] private GameObject DeathScreen;
     [SerializeField] private TextMeshProUGUI bestScoreDisplay;
     void Start()
@@ -40,7 +47,18 @@ public class GameManager : MonoBehaviour
         DeathScreen.SetActive(false);
         ResetChamber();
     }
-
+    private void Update()
+    {
+        if (timeFly)
+        {
+            timePassed+=Time.deltaTime;
+            timerDisplay.text = (timePerRoom-timePassed).ToString("F0");
+            if (timePassed > timePerRoom)
+            {
+                KillPlayer();
+            }
+        }
+    }
     public void TeleportPlayerTo(Transform position)
     {
         if(player != null)
@@ -52,6 +70,7 @@ public class GameManager : MonoBehaviour
     public void Score()
     {
         score++;
+        points.text = $"Score: {score}";
         //zagraj animacje otwierania drzwi
     }
     public void ResetChamber()
@@ -59,6 +78,8 @@ public class GameManager : MonoBehaviour
         NextQuestion();
         TeleportPlayerTo(playerStart);
         doorManager.ResetDoors();
+        timePassed = 0;
+        timeFly = true;
     }
     public void NextQuestion()
     {
@@ -98,5 +119,9 @@ public class GameManager : MonoBehaviour
     public void RestartLevel()
     {
         SceneManager.LoadSceneAsync(0);
+    }
+    public void ZaWardo()
+    {
+        timeFly = false;
     }
 }

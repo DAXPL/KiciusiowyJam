@@ -7,12 +7,13 @@ public class OnTrigger : MonoBehaviour
 {
     [SerializeField] private UnityEvent eventToInvoke;
     [SerializeField] private UnityEvent eventToReset;
+    [SerializeField] private bool shouldLocking;
     private bool locked = false;
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player") && locked == false)
         {
-            locked = true;
+            if(shouldLocking) locked = true;
             eventToInvoke.Invoke();
         }
     }
@@ -21,5 +22,9 @@ public class OnTrigger : MonoBehaviour
     {
         locked = false;
         eventToReset.Invoke();
+    }
+    public void Hodor()
+    {
+        locked = true;
     }
 }

@@ -311,4 +311,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 4185094555206205087}
   speed: 10
-  sens: 16
+  sens: 24
