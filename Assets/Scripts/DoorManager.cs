@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class DoorManager : MonoBehaviour
 {
-    [SerializeField] private Transform corridorStart;
     [SerializeField] private OnTrigger[] triggers;
-    [SerializeField] private OnTrigger endTrigger;
+    //[SerializeField] private OnTrigger endTrigger;
     [SerializeField] private Transform killingMachineRoot;
     private List<IDeathTrap> deathTraps = new List<IDeathTrap>();
+    [SerializeField] private Animator[] doorsAnimators;
+    [SerializeField] private GameObject mainDoors;
     private void Awake()
     {
         for(int i = 0; i < killingMachineRoot.childCount; i++)
@@ -19,24 +20,31 @@ public class DoorManager : MonoBehaviour
                 trap.ResetTrap();
             }
         }
+        mainDoors.SetActive(false);
     }
     public void OnDoorEnter(bool answer)
     {
-        
+        StartCoroutine(OnDoorEnterCorountine(answer));
+    }
+    IEnumerator OnDoorEnterCorountine(bool answer)
+    {
+        OpenDoor(-1);
+        yield return new WaitForSeconds(3);
+
         if (answer == GameManager.Instance.GetCorrectAnswer())
         {
             Debug.Log("Git gut");
-            GameManager.Instance.Score();  
+            GameManager.Instance.Score();
         }
         else
         {
-            Debug.Log("No i kurwa umrzesz LOL");
-            endTrigger.Hodor();
+            Debug.Log("No i umrzesz");
+            mainDoors.SetActive(true);
+            //endTrigger.Hodor();
             ActivateRandomDeathMachine();
         }
         GameManager.Instance.ZaWardo();
-        GameManager.Instance.TeleportPlayerTo(corridorStart);
-
+        GameManager.Instance.TeleportPlayerTo();
     }
     private void ActivateRandomDeathMachine()
     {
@@ -49,5 +57,20 @@ public class DoorManager : MonoBehaviour
         {
             triggers[i].ResetDoors();
         }
+    }
+
+    public void OpenDoor(int id)
+    {
+        for (int i=0;i<doorsAnimators.Length;i++)
+        {
+            bool open = doorsAnimators[i].GetBool("Open");
+            doorsAnimators[i].SetBool("Open", i == id);
+
+           if ((open != (i == id)) && doorsAnimators[i].TryGetComponent(out AudioSource audio))
+           {
+               audio.Play();
+           }
+        }
+        
     }
 }

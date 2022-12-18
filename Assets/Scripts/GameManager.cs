@@ -45,22 +45,26 @@ public class GameManager : MonoBehaviour
             player = Instantiate(playerPrefab, playerStart.transform.position, Quaternion.identity, null).GetComponent<PlayerMovement>();
         }
         DeathScreen.SetActive(false);
-        ResetChamber();
+        //ResetChamber();
     }
     private void Update()
     {
         if (timeFly)
         {
             timePassed+=Time.deltaTime;
-            timerDisplay.text = (timePerRoom-timePassed).ToString("F0");
+            timerDisplay.text = $"{(timePerRoom - timePassed).ToString("F0")} s";
             if (timePassed > timePerRoom)
             {
                 KillPlayer();
             }
         }
     }
-    public void TeleportPlayerTo(Transform position)
+    public void TeleportPlayerTo(Transform position=null)
     {
+        if(position == null)
+        {
+            position = playerStart;
+        }
         if(player != null)
         {
             player.Teleport(position);
@@ -75,11 +79,14 @@ public class GameManager : MonoBehaviour
     }
     public void ResetChamber()
     {
-        NextQuestion();
-        TeleportPlayerTo(playerStart);
+        Debug.Log("reset chamber");
         doorManager.ResetDoors();
         timePassed = 0;
         timeFly = true;
+        points.text = $"Score: {score}";
+        NextQuestion();
+        
+        //open other doors
     }
     public void NextQuestion()
     {
@@ -104,6 +111,7 @@ public class GameManager : MonoBehaviour
     {
         player.Die();
         int bestScore = PlayerPrefs.GetInt("BestScore",0);
+        DeathScreen.SetActive(true);
         if (score > bestScore)
         {
             PlayerPrefs.SetInt("BestScore",score);
@@ -114,7 +122,6 @@ public class GameManager : MonoBehaviour
         {
             bestScoreDisplay.text = $"Zdoby³eœ {score} punktów ";
         }
-        DeathScreen.SetActive(true);
     }
     public void RestartLevel()
     {
@@ -123,5 +130,9 @@ public class GameManager : MonoBehaviour
     public void ZaWardo()
     {
         timeFly = false;
+    }
+    public PlayerMovement GetPlayer()
+    {
+        return player;
     }
 }

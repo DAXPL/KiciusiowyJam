@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74b33a977ab48a24f951f973cd3ce95c, type: 3}
   m_Name: Test 1
   m_EditorClassIdentifier: 
-  desc: <- Prawda
-  correctAnswer: 1
+  desc: "Hades by\u0142 rzymskim bogiem \u015Bmierci"
+  correctAnswer: 0

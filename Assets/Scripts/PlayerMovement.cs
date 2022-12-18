@@ -7,6 +7,7 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private Camera playerCamera;
     [SerializeField] private float speed = 8f;
+    
     private Vector3 mov;
     private Vector3 input;
     private Vector2 mouseInput;
@@ -19,7 +20,11 @@ public class PlayerMovement : MonoBehaviour
     private float sens;
 
     private bool isLocked = false;
-
+    [Header("Audio")]
+    [SerializeField] private float stepDelay = 0.3f;
+    float stepTime = 0;
+    [SerializeField] private AudioSource stepSource;
+    [SerializeField] private AudioClip[] steps;
     private void Awake()
     {
         controler = gameObject.GetComponent<CharacterController>();
@@ -32,7 +37,6 @@ public class PlayerMovement : MonoBehaviour
     }
     private void Update()
     {
-        if (isLocked) return;
         mouseX = (mouseInput.x * sens) * Time.deltaTime;
         mouseY = (mouseInput.y * sens) * Time.deltaTime;
 
@@ -41,8 +45,21 @@ public class PlayerMovement : MonoBehaviour
         playerCamera.transform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
         transform.Rotate(Vector3.up * mouseX);
 
+        if (isLocked) return;
         Vector3 movementVector = transform.right * input.x + transform.forward * input.y;
-
+        if (input.magnitude > 0.1 && controler.isGrounded)
+        {
+            stepTime += Time.deltaTime;
+            if(stepTime > stepDelay)
+            {
+                stepSource.PlayOneShot(steps[Random.Range(0,steps.Length)]);
+                stepTime = 0;
+            }
+        }
+        else
+        {
+            stepTime = stepDelay*0.5f;
+        }
         controler.Move(movementVector * speed * Time.deltaTime);
         if (mov.y > gravity)
         {
@@ -85,6 +102,21 @@ public class PlayerMovement : MonoBehaviour
     {
         mouseInput = context.ReadValue<Vector2>();
     }
+    public void Fire(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            RaycastHit hit;
+            if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.TransformDirection(Vector3.forward), out hit, 5))
+            {
+                Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
+                if (hit.transform.gameObject.TryGetComponent(out Button button))
+                {
+                    button.Interact();
+                }
+            }
+        }
+    }
     public void Teleport(Transform pos)
     {
         controler.enabled = false;
@@ -96,5 +128,10 @@ public class PlayerMovement : MonoBehaviour
         isLocked = true;
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
+    }
+
+    public void BreakLegs()
+    {
+        isLocked = true;
     }
 }

@@ -6,22 +6,35 @@ using UnityEngine.Events;
 public class OnTrigger : MonoBehaviour
 {
     [SerializeField] private UnityEvent eventToInvoke;
-    [SerializeField] private UnityEvent eventToReset;
     [SerializeField] private bool shouldLocking;
+    [Space]
+    [SerializeField] private UnityEvent enterEvent;
+    [SerializeField] private UnityEvent exitEvent;
     private bool locked = false;
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player") && locked == false)
+        if (other.CompareTag("Player"))
         {
-            if(shouldLocking) locked = true;
-            eventToInvoke.Invoke();
+            enterEvent.Invoke();
+            if(locked == false)
+            {
+                if (shouldLocking) locked = true;
+                eventToInvoke.Invoke();
+            }
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            exitEvent.Invoke();
         }
     }
 
     public void ResetDoors()
     {
+        Debug.Log($"Reset {name}");
         locked = false;
-        eventToReset.Invoke();
     }
     public void Hodor()
     {
